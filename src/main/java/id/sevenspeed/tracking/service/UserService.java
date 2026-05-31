@@ -1,0 +1,11 @@
+package id.sevenspeed.tracking.service;
+
+import id.sevenspeed.tracking.entity.User;
+import id.sevenspeed.tracking.security.CustomUserDetails;
+
+public interface UserService {
+
+    CustomUserDetails getCurrentUser();
+
+    User getCurrentUserEntity();
+}
