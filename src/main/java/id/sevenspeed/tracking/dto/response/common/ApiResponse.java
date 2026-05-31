@@ -45,6 +45,14 @@ public class ApiResponse<T> {
                 .build();
     }
 
+    public static <T> ApiResponse<T> error(ApiError apiError) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(apiError)
+                .meta(Meta.now())
+                .build();
+    }
+
     // ------------------------------------------------------------------
 
     @Getter
