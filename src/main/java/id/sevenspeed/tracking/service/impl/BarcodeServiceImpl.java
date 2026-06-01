@@ -2,10 +2,14 @@ package id.sevenspeed.tracking.service.impl;
 
 import id.sevenspeed.tracking.dto.request.barcode.GenerateBarcodeRequest;
 import id.sevenspeed.tracking.dto.request.barcode.UpdateBarcodeRequest;
+import id.sevenspeed.tracking.dto.response.barcode.BarcodeResolveResponse;
+import id.sevenspeed.tracking.dto.response.barcode.BarcodeResponse;
+import id.sevenspeed.tracking.dto.response.batch.BatchDetailResponse;
 import id.sevenspeed.tracking.entity.Barcode;
 import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.exception.ResourceNotFoundException;
 import id.sevenspeed.tracking.repository.BarcodeRepository;
+import id.sevenspeed.tracking.security.CustomUserDetails;
 import id.sevenspeed.tracking.service.BarcodeService;
 import id.sevenspeed.tracking.service.BatchService;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +77,45 @@ public class BarcodeServiceImpl implements BarcodeService {
         if (request.getNotes() != null) barcode.setNotes(request.getNotes());
 
         return barcodeRepository.save(barcode);
+    }
+
+    @Override
+    public BarcodeResolveResponse resolve(String code, CustomUserDetails currentUser) {
+        Barcode barcode = findByCode(code);
+        OrderBatch batch = barcode.getBatch();
+
+        boolean canScan = resolveCanScan(batch, currentUser);
+        String canScanReason = canScan ? null : resolveCanScanReason(batch, currentUser);
+        String suggestedEventType = resolveSuggestedEventType(batch);
+
+        return BarcodeResolveResponse.builder()
+                .barcode(BarcodeResponse.from(barcode))
+                .batch(BatchDetailResponse.from(batch))
+                .canScan(canScan)
+                .canScanReason(canScanReason)
+                .suggestedAction(suggestedEventType != null ? "START_STEP" : "NONE")
+                .suggestedEventType(suggestedEventType)
+                .build();
+    }
+
+    private boolean resolveCanScan(OrderBatch batch, CustomUserDetails currentUser) {
+        if ("ADMIN".equals(currentUser.getRoleCode())) return true;
+        if (batch.getCurrentStep() == null) return false;
+        return batch.getCurrentStep().getDivision().getId()
+                .equals(currentUser.getDivisionId());
+    }
+
+    private String resolveCanScanReason(OrderBatch batch, CustomUserDetails currentUser) {
+        if (batch.getCurrentStep() == null) return "Batch has no current step";
+        return "This step belongs to division: "
+                + batch.getCurrentStep().getDivision().getName();
+    }
+
+    private String resolveSuggestedEventType(OrderBatch batch) {
+        if (batch.getCurrentStep() == null) return null;
+        if ("DRAFT".equals(batch.getStatus())) return "STEP_STARTED";
+        if ("IN_PROGRESS".equals(batch.getStatus())) return "STEP_COMPLETED";
+        return null;
     }
 
     private void deactivateExistingBarcodes(Long batchId) {

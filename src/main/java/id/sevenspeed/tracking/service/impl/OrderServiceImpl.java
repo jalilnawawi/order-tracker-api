@@ -102,6 +102,15 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.delete(order);
     }
 
+    @Override
+    public Order findByIdAndCustomerId(Long id, Long customerId) {
+        Order order = findById(id);
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new ResourceNotFoundException("Order", id);
+        }
+        return order;
+    }
+
     private String generateOrderNumber() {
         String year = String.valueOf(LocalDate.now().getYear());
         long count = orderRepository.count() + 1;
