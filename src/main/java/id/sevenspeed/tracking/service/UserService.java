@@ -4,8 +4,7 @@ import id.sevenspeed.tracking.entity.User;
 import id.sevenspeed.tracking.security.CustomUserDetails;
 
 public interface UserService {
-
     CustomUserDetails getCurrentUser();
-
     User getCurrentUserEntity();
+    User getUserById(Long id);
 }
