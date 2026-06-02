@@ -3,7 +3,6 @@ package id.sevenspeed.tracking.controller;
 import id.sevenspeed.tracking.dto.response.common.ApiResponse;
 import id.sevenspeed.tracking.dto.response.division.DivisionResponse;
 import id.sevenspeed.tracking.dto.response.division.QueueItemResponse;
-import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.service.DivisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,17 +19,13 @@ public class DivisionController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<DivisionResponse>>> findAll() {
-        return ResponseEntity.ok(ApiResponse.ok(
-                divisionService.findAll().stream()
-                        .map(DivisionResponse::from)
-                        .toList()));
+        return ResponseEntity.ok(ApiResponse.ok(divisionService.findAll()));
     }
 
     @GetMapping("/{id}/queue")
     public ResponseEntity<ApiResponse<List<QueueItemResponse>>> getQueue(
             @PathVariable Long id) {
-        List<OrderBatch> queue = divisionService.findQueueByDivisionId(id);
         return ResponseEntity.ok(ApiResponse.ok(
-                queue.stream().map(QueueItemResponse::from).toList()));
+                divisionService.findQueueByDivisionId(id)));
     }
 }

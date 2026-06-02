@@ -1,15 +1,18 @@
 package id.sevenspeed.tracking.service;
 
+import id.sevenspeed.tracking.dto.response.division.DivisionResponse;
+import id.sevenspeed.tracking.dto.response.division.QueueItemResponse;
 import id.sevenspeed.tracking.entity.Division;
-import id.sevenspeed.tracking.entity.OrderBatch;
 
 import java.util.List;
 
 public interface DivisionService {
 
-    List<Division> findAll();
+    List<DivisionResponse> findAll();
 
-    Division findById(Long id);
+    DivisionResponse findById(Long id);
 
-    List<OrderBatch> findQueueByDivisionId(Long divisionId);
+    List<QueueItemResponse> findQueueByDivisionId(Long divisionId);
+
+    Division findEntityById(Long id); // dipakai internal
 }

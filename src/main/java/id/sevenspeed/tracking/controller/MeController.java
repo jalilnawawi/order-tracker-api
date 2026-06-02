@@ -86,9 +86,8 @@ public class MeController {
             throw new BusinessException("NO_DIVISION",
                     "User does not have a division assigned", HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        List<OrderBatch> queue = divisionService.findQueueByDivisionId(
+        List<QueueItemResponse> queue = divisionService.findQueueByDivisionId(
                 currentUser.getDivisionId());
-        return ResponseEntity.ok(ApiResponse.ok(
-                queue.stream().map(QueueItemResponse::from).toList()));
+        return ResponseEntity.ok(ApiResponse.ok(queue));
     }
 }
