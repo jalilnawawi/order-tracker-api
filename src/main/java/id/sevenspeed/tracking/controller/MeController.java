@@ -32,7 +32,6 @@ public class MeController {
 
     private final UserService userService;
     private final OrderService orderService;
-    private final BatchService batchService;
     private final DivisionService divisionService;
     private final OrderBatchRepository orderBatchRepository;
 
@@ -60,23 +59,16 @@ public class MeController {
             @RequestParam(required = false) String status,
             Pageable pageable) {
         CustomUserDetails currentUser = userService.getCurrentUser();
-        Page<Order> orders = orderService.findAll(status, currentUser.getUserId(), pageable);
-        return ResponseEntity.ok(ApiResponse.paginated(orders.map(o ->
-                OrderListItemResponse.from(o,
-                        orderBatchRepository.findByOrderId(o.getId()).size()))));
+        Page<OrderListItemResponse> orders = orderService.findAll(status, currentUser.getUserId(), pageable);
+        return ResponseEntity.ok(ApiResponse.paginated(orders));
     }
 
     @GetMapping("/orders/{id}")
     public ResponseEntity<ApiResponse<OrderDetailResponse>> getMyOrderDetail(
             @PathVariable Long id) {
         CustomUserDetails currentUser = userService.getCurrentUser();
-        Order order = orderService.findByIdAndCustomerId(id, currentUser.getUserId());
-        List<OrderBatch> batches = batchService.findByOrderId(id);
-        return ResponseEntity.ok(ApiResponse.ok(
-                OrderDetailResponse.from(order,
-                        batches.stream()
-                                .map(BatchSummaryResponse::from)
-                                .toList())));
+        OrderDetailResponse order = orderService.findByIdAndCustomerId(id, currentUser.getUserId());
+        return ResponseEntity.ok(ApiResponse.ok(order));
     }
 
     @GetMapping("/queue")

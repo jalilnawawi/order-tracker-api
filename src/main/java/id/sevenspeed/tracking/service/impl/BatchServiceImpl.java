@@ -2,6 +2,7 @@ package id.sevenspeed.tracking.service.impl;
 
 import id.sevenspeed.tracking.dto.request.batch.CreateBatchRequest;
 import id.sevenspeed.tracking.dto.request.batch.UpdateBatchRequest;
+import id.sevenspeed.tracking.dto.response.order.OrderDetailResponse;
 import id.sevenspeed.tracking.entity.Order;
 import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.entity.ProductType;
@@ -41,7 +42,7 @@ public class BatchServiceImpl implements BatchService {
     @Override
     @Transactional
     public OrderBatch create(Long orderId, CreateBatchRequest request) {
-        Order order = orderService.findById(orderId);
+        Order order = orderService.findEntityById(orderId);
         ProductType productType = productTypeRepository.findById(request.getProductTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException("ProductType", request.getProductTypeId()));
 
