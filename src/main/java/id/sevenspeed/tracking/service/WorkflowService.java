@@ -1,5 +1,7 @@
 package id.sevenspeed.tracking.service;
 
+import id.sevenspeed.tracking.dto.response.workflow.WorkflowResponse;
+import id.sevenspeed.tracking.dto.response.workflow.WorkflowStepResponse;
 import id.sevenspeed.tracking.entity.Workflow;
 import id.sevenspeed.tracking.entity.WorkflowStep;
 
@@ -7,9 +9,11 @@ import java.util.List;
 
 public interface WorkflowService {
 
-    List<Workflow> findAll();
+    List<WorkflowResponse> findAll();
 
-    Workflow findById(Long id);
+    WorkflowResponse findById(Long id);
 
-    List<WorkflowStep> findStepsByWorkflowId(Long workflowId);
+    List<WorkflowStepResponse> findStepsByWorkflowId(Long workflowId);
+
+    Workflow findEntityById(Long id);
 }
