@@ -2,7 +2,8 @@ package id.sevenspeed.tracking.service.impl;
 
 import id.sevenspeed.tracking.dto.request.batch.CreateBatchRequest;
 import id.sevenspeed.tracking.dto.request.batch.UpdateBatchRequest;
-import id.sevenspeed.tracking.dto.response.order.OrderDetailResponse;
+import id.sevenspeed.tracking.dto.response.batch.BatchDetailResponse;
+import id.sevenspeed.tracking.dto.response.batch.BatchSummaryResponse;
 import id.sevenspeed.tracking.entity.Order;
 import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.entity.ProductType;
@@ -28,23 +29,29 @@ public class BatchServiceImpl implements BatchService {
     private final OrderService orderService;
 
     @Override
-    public List<OrderBatch> findByOrderId(Long orderId) {
-        orderService.findById(orderId); // validasi order exists
-        return orderBatchRepository.findByOrderId(orderId);
+    @Transactional(readOnly = true)
+    public List<BatchSummaryResponse> findByOrderId(Long orderId) {
+        orderService.findEntityById(orderId); // validasi order exists
+        return orderBatchRepository.findByOrderId(orderId)
+                .stream()
+                .map(BatchSummaryResponse::from)
+                .toList();
     }
 
     @Override
-    public OrderBatch findById(Long id) {
-        return orderBatchRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Batch", id));
+    @Transactional(readOnly = true)
+    public BatchDetailResponse findById(Long id) {
+        return BatchDetailResponse.from(findEntityById(id));
     }
 
     @Override
     @Transactional
-    public OrderBatch create(Long orderId, CreateBatchRequest request) {
+    public BatchDetailResponse create(Long orderId, CreateBatchRequest request) {
         Order order = orderService.findEntityById(orderId);
-        ProductType productType = productTypeRepository.findById(request.getProductTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductType", request.getProductTypeId()));
+        ProductType productType = productTypeRepository
+                .findById(request.getProductTypeId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "ProductType", request.getProductTypeId()));
 
         String batchNumber = generateBatchNumber(order.getOrderNumber(), order.getId());
 
@@ -58,20 +65,26 @@ public class BatchServiceImpl implements BatchService {
         batch.setNotes(request.getNotes());
         batch.setStatus("DRAFT");
 
-        return orderBatchRepository.save(batch);
+        return BatchDetailResponse.from(orderBatchRepository.save(batch));
     }
 
     @Override
     @Transactional
-    public OrderBatch update(Long id, UpdateBatchRequest request) {
-        OrderBatch batch = findById(id);
+    public BatchDetailResponse update(Long id, UpdateBatchRequest request) {
+        OrderBatch batch = findEntityById(id);
 
         if (request.getQuantity() != null) batch.setQuantity(request.getQuantity());
         if (request.getSpecifications() != null) batch.setSpecifications(request.getSpecifications());
         if (request.getNotes() != null) batch.setNotes(request.getNotes());
         if (request.getStatus() != null) batch.setStatus(request.getStatus());
 
-        return orderBatchRepository.save(batch);
+        return BatchDetailResponse.from(orderBatchRepository.save(batch));
+    }
+
+    @Override
+    public OrderBatch findEntityById(Long id) {
+        return orderBatchRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Batch", id));
     }
 
     private String generateBatchNumber(String orderNumber, Long orderId) {

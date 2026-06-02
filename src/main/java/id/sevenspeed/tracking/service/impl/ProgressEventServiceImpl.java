@@ -1,6 +1,7 @@
 package id.sevenspeed.tracking.service.impl;
 
 import id.sevenspeed.tracking.dto.request.progress.CreateProgressEventRequest;
+import id.sevenspeed.tracking.dto.response.progress.ProgressEventResponse;
 import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.entity.ProgressEvent;
 import id.sevenspeed.tracking.entity.WorkflowStep;
@@ -29,50 +30,56 @@ import java.util.List;
 public class ProgressEventServiceImpl implements ProgressEventService {
 
     private final ProgressEventRepository progressEventRepository;
-    private final OrderRepository orderRepository;
     private final OrderBatchRepository orderBatchRepository;
     private final WorkflowStepRepository workflowStepRepository;
+    private final OrderRepository orderRepository;
     private final ProgressEventValidator validator;
     private final UserService userService;
 
     @Override
-    public Page<ProgressEvent> findByBatchId(Long batchId, Pageable pageable) {
-        return progressEventRepository.findByBatchId(batchId, pageable);
+    @Transactional(readOnly = true)
+    public Page<ProgressEventResponse> findByBatchId(Long batchId, Pageable pageable) {
+        return progressEventRepository.findByBatchId(batchId, pageable)
+                .map(ProgressEventResponse::from);
     }
 
     @Override
     @Transactional
-    public ProgressEvent append(Long batchId, CreateProgressEventRequest request) {
+    public ProgressEventResponse append(Long batchId, CreateProgressEventRequest request) {
         CustomUserDetails currentUser = userService.getCurrentUser();
         OrderBatch batch = orderBatchRepository.findById(batchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Batch", batchId));
 
         WorkflowStep step = workflowStepRepository.findById(request.getWorkflowStepId())
-                .orElseThrow(() -> new ResourceNotFoundException("WorkflowStep", request.getWorkflowStepId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "WorkflowStep", request.getWorkflowStepId()));
 
         WorkflowStep targetStep = resolveTargetStep(request.getTargetWorkflowStepId());
         ProgressEvent correctsEvent = resolveCorrectsEvent(request.getCorrectsEventId());
 
-        validator.validate(request.getEventType(), batch, step, targetStep, correctsEvent, currentUser);
+        validator.validate(request.getEventType(), batch, step,
+                targetStep, correctsEvent, currentUser);
 
         ProgressEvent event = buildEvent(request, batch, step, correctsEvent);
         ProgressEvent saved = progressEventRepository.save(event);
 
         applyBatchSideEffects(request.getEventType(), batch, step, targetStep);
 
-        return saved;
+        return ProgressEventResponse.from(saved);
     }
 
     private WorkflowStep resolveTargetStep(Long targetStepId) {
         if (targetStepId == null) return null;
         return workflowStepRepository.findById(targetStepId)
-                .orElseThrow(() -> new ResourceNotFoundException("WorkflowStep", targetStepId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "WorkflowStep", targetStepId));
     }
 
     private ProgressEvent resolveCorrectsEvent(Long correctsEventId) {
         if (correctsEventId == null) return null;
         return progressEventRepository.findById(correctsEventId)
-                .orElseThrow(() -> new ResourceNotFoundException("ProgressEvent", correctsEventId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "ProgressEvent", correctsEventId));
     }
 
     private ProgressEvent buildEvent(CreateProgressEventRequest request, OrderBatch batch,
@@ -124,7 +131,6 @@ public class ProgressEventServiceImpl implements ProgressEventService {
 
     private void cascadeOrderStatus(Long orderId) {
         List<OrderBatch> allBatches = orderBatchRepository.findByOrderId(orderId);
-
         boolean allCompleted = allBatches.stream()
                 .allMatch(b -> "COMPLETED".equals(b.getStatus()));
 
@@ -133,7 +139,8 @@ public class ProgressEventServiceImpl implements ProgressEventService {
                 order.setStatus("COMPLETED");
                 order.setCompletedAt(OffsetDateTime.now());
                 orderRepository.save(order);
-                log.info("Order {} auto-completed — all batches completed", order.getOrderNumber());
+                log.info("Order {} auto-completed — all batches completed",
+                        order.getOrderNumber());
             });
         }
     }

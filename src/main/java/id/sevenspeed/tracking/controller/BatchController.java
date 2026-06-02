@@ -7,13 +7,10 @@ import id.sevenspeed.tracking.dto.response.batch.BatchDetailResponse;
 import id.sevenspeed.tracking.dto.response.batch.BatchSummaryResponse;
 import id.sevenspeed.tracking.dto.response.common.ApiResponse;
 import id.sevenspeed.tracking.dto.response.progress.ProgressEventResponse;
-import id.sevenspeed.tracking.entity.OrderBatch;
-import id.sevenspeed.tracking.entity.ProgressEvent;
 import id.sevenspeed.tracking.service.BatchService;
 import id.sevenspeed.tracking.service.ProgressEventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,48 +29,44 @@ public class BatchController {
     @GetMapping("/orders/{orderId}/batches")
     public ResponseEntity<ApiResponse<List<BatchSummaryResponse>>> findByOrderId(
             @PathVariable Long orderId) {
-        List<OrderBatch> batches = batchService.findByOrderId(orderId);
         return ResponseEntity.ok(ApiResponse.ok(
-                batches.stream().map(BatchSummaryResponse::from).toList()));
+                batchService.findByOrderId(orderId)));
     }
 
     @PostMapping("/orders/{orderId}/batches")
     public ResponseEntity<ApiResponse<BatchDetailResponse>> create(
             @PathVariable Long orderId,
             @Valid @RequestBody CreateBatchRequest request) {
-        OrderBatch batch = batchService.create(orderId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(BatchDetailResponse.from(batch)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(batchService.create(orderId, request)));
     }
 
     @GetMapping("/batches/{id}")
     public ResponseEntity<ApiResponse<BatchDetailResponse>> findById(
             @PathVariable Long id) {
-        OrderBatch batch = batchService.findById(id);
-        return ResponseEntity.ok(ApiResponse.ok(BatchDetailResponse.from(batch)));
+        return ResponseEntity.ok(ApiResponse.ok(batchService.findById(id)));
     }
 
     @PatchMapping("/batches/{id}")
     public ResponseEntity<ApiResponse<BatchDetailResponse>> update(
             @PathVariable Long id,
             @RequestBody UpdateBatchRequest request) {
-        OrderBatch batch = batchService.update(id, request);
-        return ResponseEntity.ok(ApiResponse.ok(BatchDetailResponse.from(batch)));
+        return ResponseEntity.ok(ApiResponse.ok(batchService.update(id, request)));
     }
 
     @GetMapping("/batches/{id}/progress-events")
     public ResponseEntity<ApiResponse<List<ProgressEventResponse>>> findProgressEvents(
             @PathVariable Long id,
             Pageable pageable) {
-        Page<ProgressEvent> events = progressEventService.findByBatchId(id, pageable);
         return ResponseEntity.ok(ApiResponse.paginated(
-                events.map(ProgressEventResponse::from)));
+                progressEventService.findByBatchId(id, pageable)));
     }
 
     @PostMapping("/batches/{id}/progress-events")
     public ResponseEntity<ApiResponse<ProgressEventResponse>> appendProgressEvent(
             @PathVariable Long id,
             @Valid @RequestBody CreateProgressEventRequest request) {
-        ProgressEvent event = progressEventService.append(id, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(ProgressEventResponse.from(event)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(progressEventService.append(id, request)));
     }
 }

@@ -2,17 +2,21 @@ package id.sevenspeed.tracking.service;
 
 import id.sevenspeed.tracking.dto.request.batch.CreateBatchRequest;
 import id.sevenspeed.tracking.dto.request.batch.UpdateBatchRequest;
+import id.sevenspeed.tracking.dto.response.batch.BatchDetailResponse;
+import id.sevenspeed.tracking.dto.response.batch.BatchSummaryResponse;
 import id.sevenspeed.tracking.entity.OrderBatch;
 
 import java.util.List;
 
 public interface BatchService {
 
-    List<OrderBatch> findByOrderId(Long orderId);
+    List<BatchSummaryResponse> findByOrderId(Long orderId);
 
-    OrderBatch findById(Long id);
+    BatchDetailResponse findById(Long id);
 
-    OrderBatch create(Long orderId, CreateBatchRequest request);
+    BatchDetailResponse create(Long orderId, CreateBatchRequest request);
 
-    OrderBatch update(Long id, UpdateBatchRequest request);
+    BatchDetailResponse update(Long id, UpdateBatchRequest request);
+
+    OrderBatch findEntityById(Long id); // dipakai internal service lain
 }

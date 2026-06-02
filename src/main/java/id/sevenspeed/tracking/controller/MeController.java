@@ -33,25 +33,10 @@ public class MeController {
     private final UserService userService;
     private final OrderService orderService;
     private final DivisionService divisionService;
-    private final OrderBatchRepository orderBatchRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
-        User user = userService.getCurrentUserEntity();
-        return ResponseEntity.ok(ApiResponse.ok(UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .phone(user.getPhone())
-                .roleCode(user.getRole().getCode())
-                .divisionId(user.getDivision() != null ? user.getDivision().getId() : null)
-                .divisionCode(user.getDivision() != null ? user.getDivision().getCode() : null)
-                .divisionName(user.getDivision() != null ? user.getDivision().getName() : null)
-                .customerType(user.getCustomerType())
-                .institutionName(user.getInstitutionName())
-                .isActive(user.getIsActive())
-                .build()));
+        return ResponseEntity.ok(ApiResponse.ok(userService.getCurrentUserResponse()));
     }
 
     @GetMapping("/orders")

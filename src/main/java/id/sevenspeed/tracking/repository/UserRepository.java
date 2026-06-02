@@ -30,4 +30,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("divisionId") Long divisionId,
             @Param("q") String q,
             Pageable pageable);
+
+    @Query("""
+        SELECT u FROM User u
+        LEFT JOIN FETCH u.role
+        LEFT JOIN FETCH u.division
+        WHERE u.id = :id
+        """)
+    Optional<User> findByIdWithRoleAndDivision(@Param("id") Long id);
 }

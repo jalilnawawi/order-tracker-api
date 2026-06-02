@@ -28,60 +28,33 @@ public class BarcodeServiceImpl implements BarcodeService {
     private final BatchService batchService;
 
     @Override
-    public Barcode findByCode(String code) {
-        return barcodeRepository.findByCodeAndIsActiveTrue(code)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Barcode not found or inactive: " + code));
+    @Transactional(readOnly = true)
+    public BarcodeResponse findByCode(String code) {
+        return BarcodeResponse.from(findEntityByCode(code));
     }
 
     @Override
-    public Barcode findById(Long id) {
-        return barcodeRepository.findById(id)
+    @Transactional(readOnly = true)
+    public BarcodeResponse findById(Long id) {
+        Barcode barcode = barcodeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Barcode", id));
+        return BarcodeResponse.from(barcode);
     }
 
     @Override
-    public List<Barcode> findByBatchId(Long batchId) {
-        batchService.findById(batchId); // validasi batch exists
-        return barcodeRepository.findByBatchId(batchId);
+    @Transactional(readOnly = true)
+    public List<BarcodeResponse> findByBatchId(Long batchId) {
+        batchService.findEntityById(batchId); // validasi batch exists
+        return barcodeRepository.findByBatchId(batchId)
+                .stream()
+                .map(BarcodeResponse::from)
+                .toList();
     }
 
     @Override
-    @Transactional
-    public Barcode generate(Long batchId, GenerateBarcodeRequest request) {
-        OrderBatch batch = batchService.findById(batchId);
-
-        if (Boolean.TRUE.equals(request.getDeactivatePrevious())) {
-            deactivateExistingBarcodes(batchId);
-        }
-
-        Barcode barcode = new Barcode();
-        barcode.setBatch(batch);
-        barcode.setCode(generateCode(batch.getBatchNumber()));
-        barcode.setBarcodeType(request.getBarcodeType() != null
-                ? request.getBarcodeType()
-                : "CODE128");
-        barcode.setIsActive(true);
-        barcode.setNotes(request.getNotes());
-
-        return barcodeRepository.save(barcode);
-    }
-
-    @Override
-    @Transactional
-    public Barcode update(Long id, UpdateBarcodeRequest request) {
-        Barcode barcode = findById(id);
-
-        if (request.getIsActive() != null) barcode.setIsActive(request.getIsActive());
-        if (request.getPrintedAt() != null) barcode.setPrintedAt(request.getPrintedAt());
-        if (request.getNotes() != null) barcode.setNotes(request.getNotes());
-
-        return barcodeRepository.save(barcode);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public BarcodeResolveResponse resolve(String code, CustomUserDetails currentUser) {
-        Barcode barcode = findByCode(code);
+        Barcode barcode = findEntityByCode(code);
         OrderBatch batch = barcode.getBatch();
 
         boolean canScan = resolveCanScan(batch, currentUser);
@@ -96,6 +69,57 @@ public class BarcodeServiceImpl implements BarcodeService {
                 .suggestedAction(suggestedEventType != null ? "START_STEP" : "NONE")
                 .suggestedEventType(suggestedEventType)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public BarcodeResponse generate(Long batchId, GenerateBarcodeRequest request) {
+        OrderBatch batch = batchService.findEntityById(batchId);
+
+        if (Boolean.TRUE.equals(request.getDeactivatePrevious())) {
+            deactivateExistingBarcodes(batchId);
+        }
+
+        Barcode barcode = new Barcode();
+        barcode.setBatch(batch);
+        barcode.setCode(generateCode(batch.getBatchNumber()));
+        barcode.setBarcodeType(request.getBarcodeType() != null
+                ? request.getBarcodeType() : "CODE128");
+        barcode.setIsActive(true);
+        barcode.setNotes(request.getNotes());
+
+        return BarcodeResponse.from(barcodeRepository.save(barcode));
+    }
+
+    @Override
+    @Transactional
+    public BarcodeResponse update(Long id, UpdateBarcodeRequest request) {
+        Barcode barcode = barcodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Barcode", id));
+
+        if (request.getIsActive() != null) barcode.setIsActive(request.getIsActive());
+        if (request.getPrintedAt() != null) barcode.setPrintedAt(request.getPrintedAt());
+        if (request.getNotes() != null) barcode.setNotes(request.getNotes());
+
+        return BarcodeResponse.from(barcodeRepository.save(barcode));
+    }
+
+    @Override
+    public Barcode findEntityByCode(String code) {
+        return barcodeRepository.findByCodeAndIsActiveTrue(code)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Barcode not found or inactive: " + code));
+    }
+
+    private void deactivateExistingBarcodes(Long batchId) {
+        List<Barcode> active = barcodeRepository.findByBatchId(batchId)
+                .stream()
+                .filter(b -> Boolean.TRUE.equals(b.getIsActive()))
+                .toList();
+
+        active.forEach(b -> b.setIsActive(false));
+        barcodeRepository.saveAll(active);
+        log.info("Deactivated {} barcode(s) for batchId {}", active.size(), batchId);
     }
 
     private boolean resolveCanScan(OrderBatch batch, CustomUserDetails currentUser) {
@@ -116,17 +140,6 @@ public class BarcodeServiceImpl implements BarcodeService {
         if ("DRAFT".equals(batch.getStatus())) return "STEP_STARTED";
         if ("IN_PROGRESS".equals(batch.getStatus())) return "STEP_COMPLETED";
         return null;
-    }
-
-    private void deactivateExistingBarcodes(Long batchId) {
-        List<Barcode> active = barcodeRepository.findByBatchId(batchId)
-                .stream()
-                .filter(b -> Boolean.TRUE.equals(b.getIsActive()))
-                .toList();
-
-        active.forEach(b -> b.setIsActive(false));
-        barcodeRepository.saveAll(active);
-        log.info("Deactivated {} barcode(s) for batchId {}", active.size(), batchId);
     }
 
     private String generateCode(String batchNumber) {
