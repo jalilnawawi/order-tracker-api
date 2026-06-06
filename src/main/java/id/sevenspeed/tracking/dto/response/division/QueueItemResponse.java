@@ -16,6 +16,7 @@ public class QueueItemResponse {
     private String orderTitle;
     private String customerName;
     private WorkflowStepResponse currentStep;
+    private String hasStartedAt;
     private String enteredAt;
     private Boolean isUrgent;
     private String deadlineDate;
@@ -33,6 +34,7 @@ public class QueueItemResponse {
                 .customerName(batch.getOrder().getCustomer().getFullName())
                 .currentStep(batch.getCurrentStep() != null
                         ? WorkflowStepResponse.from(batch.getCurrentStep()) : null)
+                .hasStartedAt(DateTimeUtil.format(batch.getStartedAt()))
                 .enteredAt(DateTimeUtil.format(batch.getCurrentStepEnteredAt()))
                 .isUrgent(isUrgent)
                 .deadlineDate(batch.getOrder().getDeadlineDate() != null
