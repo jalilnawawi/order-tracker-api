@@ -43,12 +43,13 @@ public class ReferenceDataController {
 
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserSummaryResponse>>> findUsers(
-            @RequestParam(required = false) String role,
+            @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) Long divisionId,
             @RequestParam(required = false) String q,
             Pageable pageable) {
+        String qPattern = q != null ? "%" + q.toLowerCase() + "%" : null;
         return ResponseEntity.ok(ApiResponse.paginated(
-                userRepository.findWithFilters(role, divisionId, q, pageable)
+                userRepository.findWithFilters(roleCode, divisionId, qPattern, pageable)
                         .map(UserSummaryResponse::from)));
     }
 }

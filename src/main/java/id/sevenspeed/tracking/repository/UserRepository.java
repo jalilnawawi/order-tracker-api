@@ -18,12 +18,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsernameAndDeletedAtIsNull(String username);
 
-    @Query("""
+    @Query(value = """
         SELECT u FROM User u
+        JOIN FETCH u.role
+        LEFT JOIN FETCH u.division
         WHERE (:roleCode IS NULL OR u.role.code = :roleCode)
         AND (:divisionId IS NULL OR u.division.id = :divisionId)
-        AND (:q IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :q, '%'))
-             OR LOWER(u.username) LIKE LOWER(CONCAT('%', :q, '%')))
+        AND (:q IS NULL OR LOWER(u.fullName) LIKE :q
+             OR LOWER(u.username) LIKE :q)
+        """,
+        countQuery = """
+        SELECT COUNT(u) FROM User u
+        WHERE (:roleCode IS NULL OR u.role.code = :roleCode)
+        AND (:divisionId IS NULL OR u.division.id = :divisionId)
+        AND (:q IS NULL OR LOWER(u.fullName) LIKE :q
+             OR LOWER(u.username) LIKE :q)
         """)
     Page<User> findWithFilters(
             @Param("roleCode") String roleCode,
