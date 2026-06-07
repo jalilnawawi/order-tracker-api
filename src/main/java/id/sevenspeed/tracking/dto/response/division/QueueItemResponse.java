@@ -7,6 +7,8 @@ import id.sevenspeed.tracking.util.DateTimeUtil;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.OffsetDateTime;
+
 @Getter
 @Builder
 public class QueueItemResponse {
@@ -21,7 +23,7 @@ public class QueueItemResponse {
     private Boolean isUrgent;
     private String deadlineDate;
 
-    public static QueueItemResponse from(OrderBatch batch) {
+    public static QueueItemResponse from(OrderBatch batch, OffsetDateTime currentStepStartedAt) {
         boolean isUrgent = batch.getOrder().getDeadlineDate() != null
                 && batch.getOrder().getDeadlineDate()
                         .isBefore(java.time.LocalDate.now().plusDays(3))
@@ -34,7 +36,7 @@ public class QueueItemResponse {
                 .customerName(batch.getOrder().getCustomer().getFullName())
                 .currentStep(batch.getCurrentStep() != null
                         ? WorkflowStepResponse.from(batch.getCurrentStep()) : null)
-                .hasStartedAt(DateTimeUtil.format(batch.getStartedAt()))
+                .hasStartedAt(DateTimeUtil.format(currentStepStartedAt))
                 .enteredAt(DateTimeUtil.format(batch.getCurrentStepEnteredAt()))
                 .isUrgent(isUrgent)
                 .deadlineDate(batch.getOrder().getDeadlineDate() != null
