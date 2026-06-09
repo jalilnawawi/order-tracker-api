@@ -108,8 +108,18 @@ public class ProgressEventServiceImpl implements ProgressEventService {
                 if (Boolean.TRUE.equals(step.getIsFinal())) {
                     batch.setStatus("COMPLETED");
                     batch.setCompletedAt(OffsetDateTime.now());
+                    batch.setCurrentStep(step);
+                } else {
+                    // Maju ke step berikutnya → batch masuk antrian divisi berikutnya.
+                    // Operator divisi itu yang nanti POST STEP_STARTED.
+                    WorkflowStep nextStep = workflowStepRepository
+                            .findByWorkflowIdAndSequenceNumber(
+                                    step.getWorkflow().getId(),
+                                    step.getSequenceNumber() + 1)
+                            .orElse(step); // defensif: kalau tak ada, tetap di step ini
+                    batch.setCurrentStep(nextStep);
+                    batch.setCurrentStepEnteredAt(OffsetDateTime.now());
                 }
-                batch.setCurrentStep(step);
             }
             case "STEP_FAILED" -> batch.setCurrentStep(step);
             case "REWORK" -> {

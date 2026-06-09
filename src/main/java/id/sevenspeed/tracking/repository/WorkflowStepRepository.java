@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface WorkflowStepRepository extends JpaRepository<WorkflowStep, Long> {
     List<WorkflowStep> findByWorkflowIdOrderBySequenceNumberAsc(Long workflowId);
     Optional<WorkflowStep> findByWorkflowIdAndCode(Long workflowId, String code);
+    Optional<WorkflowStep> findByWorkflowIdAndSequenceNumber(Long workflowId, Integer sequenceNumber);
 }
