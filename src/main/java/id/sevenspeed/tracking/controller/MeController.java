@@ -6,6 +6,7 @@ import id.sevenspeed.tracking.dto.response.common.UserResponse;
 import id.sevenspeed.tracking.dto.response.division.QueueItemResponse;
 import id.sevenspeed.tracking.dto.response.order.OrderDetailResponse;
 import id.sevenspeed.tracking.dto.response.order.OrderListItemResponse;
+import id.sevenspeed.tracking.dto.response.order.OrderTimelineStepResponse;
 import id.sevenspeed.tracking.entity.Order;
 import id.sevenspeed.tracking.entity.OrderBatch;
 import id.sevenspeed.tracking.entity.User;
@@ -54,6 +55,15 @@ public class MeController {
         CustomUserDetails currentUser = userService.getCurrentUser();
         OrderDetailResponse order = orderService.findByIdAndCustomerId(id, currentUser.getUserId());
         return ResponseEntity.ok(ApiResponse.ok(order));
+    }
+
+    @GetMapping("/orders/{id}/timeline")
+    public ResponseEntity<ApiResponse<List<OrderTimelineStepResponse>>> getMyOrderTimeline(
+            @PathVariable Long id) {
+        CustomUserDetails currentUser = userService.getCurrentUser();
+        List<OrderTimelineStepResponse> timeline =
+                orderService.getCustomerTimeline(id, currentUser.getUserId());
+        return ResponseEntity.ok(ApiResponse.ok(timeline));
     }
 
     @GetMapping("/queue")
