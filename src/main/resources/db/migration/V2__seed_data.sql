@@ -20,7 +20,7 @@
 --   - 1 skenario sample ditolak (balik ke Desain)
 --
 -- Password semua user dummy: "password123" (bcrypt cost 10)
--- Hash: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+-- Hash: $2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre
 -- JANGAN PAKAI UNTUK PRODUKSI - INI HANYA UNTUK DEMO LOCAL
 -- =====================================================================
 
@@ -32,62 +32,62 @@ BEGIN;
 
 -- Owner & admin internal
 INSERT INTO users (username, email, password_hash, full_name, phone, role_id, division_id, customer_type) VALUES
-                                                                                                              ('owner', 'owner@sevenspeed.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                              ('owner', 'owner@sevenspeed.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                'Bapak Suryanto Pranoto', '+6281228123456',
                                                                                                                (SELECT id FROM roles WHERE code='ADMIN'), NULL, NULL),
 
-                                                                                                              ('admin.cs', 'cs@sevenspeed.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                              ('admin.cs', 'cs@sevenspeed.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                'Mbak Indah Lestari', '+6285627891234',
                                                                                                                (SELECT id FROM roles WHERE code='ADMIN'),
                                                                                                                (SELECT id FROM divisions WHERE code='CS'), NULL);
 
 -- Operator per divisi (sengaja pakai nama lokal Kudus)
 INSERT INTO users (username, password_hash, full_name, phone, role_id, division_id) VALUES
-                                                                                        ('op.design',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Pak Wahyu Setiaji',      '+6285712345678',
+                                                                                        ('op.design',    '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Pak Wahyu Setiaji',      '+6285712345678',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='DESIGN')),
-                                                                                        ('op.pattern',   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Bu Sumarni',             '+6285712345679',
+                                                                                        ('op.pattern',   '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Bu Sumarni',             '+6285712345679',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='PATTERN')),
-                                                                                        ('op.cutting',   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Pak Tarno Wijaya',       '+6285712345680',
+                                                                                        ('op.cutting',   '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Pak Tarno Wijaya',       '+6285712345680',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='CUTTING')),
-                                                                                        ('op.sablon',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mas Bagus Saputra',      '+6285712345681',
+                                                                                        ('op.sablon',    '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Mas Bagus Saputra',      '+6285712345681',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='SABLON')),
-                                                                                        ('op.sewing',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Bu Siti Aminah',         '+6285712345682',
+                                                                                        ('op.sewing',    '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Bu Siti Aminah',         '+6285712345682',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='SEWING')),
-                                                                                        ('op.qc',        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Pak Heru Santosa',       '+6285712345683',
+                                                                                        ('op.qc',        '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Pak Heru Santosa',       '+6285712345683',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='QC')),
-                                                                                        ('op.finishing', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mas Riyanto',            '+6285712345684',
+                                                                                        ('op.finishing', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Mas Riyanto',            '+6285712345684',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='FINISHING')),
-                                                                                        ('op.packing',   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mas Joko Prabowo',       '+6285712345685',
+                                                                                        ('op.packing',   '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre', 'Mas Joko Prabowo',       '+6285712345685',
                                                                                          (SELECT id FROM roles WHERE code='OPERATOR'), (SELECT id FROM divisions WHERE code='PACKING'));
 
 -- Customers (instansi & perorangan)
 INSERT INTO users (username, email, password_hash, full_name, phone, role_id, customer_type, institution_name, address) VALUES
-                                                                                                                            ('smpn1.kudus', 'tu@smpn1kudus.sch.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('smpn1.kudus', 'tu@smpn1kudus.sch.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Bapak Sutrisno (Wakasek Kesiswaan)', '+62291438123',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INSTITUTION',
                                                                                                                              'SMP Negeri 1 Kudus', 'Jl. Sunan Muria No. 10A, Barongan, Kec. Kota Kudus'),
 
-                                                                                                                            ('smpn2.kudus', 'humas@smpn2kudus.sch.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('smpn2.kudus', 'humas@smpn2kudus.sch.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Ibu Yuliana (Humas Sekolah)', '+62291438456',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INSTITUTION',
                                                                                                                              'SMP Negeri 2 Kudus', 'Jl. Jend. Sudirman No. 82, Nganguk, Kec. Kota Kudus'),
 
-                                                                                                                            ('smpn1.jati',  'tu@smpn1jati.sch.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('smpn1.jati',  'tu@smpn1jati.sch.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Bapak Edi Susanto (Bag. Tata Usaha)', '+62291438789',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INSTITUTION',
                                                                                                                              'SMP Negeri 1 Jati Kudus', 'Jl. Getas Pejaten No. 4, Getas Pejaten, Kec. Jati'),
 
-                                                                                                                            ('komunitas.muria', 'panitia.muria@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('komunitas.muria', 'panitia.muria@gmail.com', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Mas Ahmad Fauzan (Ketua Panitia)', '+6281329876543',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INSTITUTION',
                                                                                                                              'Panitia Reuni Akbar Muria 2026', 'Jl. Kyai Telingsing No. 23, Kudus'),
 
-                                                                                                                            ('bu.rahma',    'rahma.dewi@gmail.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('bu.rahma',    'rahma.dewi@gmail.com', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Ibu Rahma Dewi', '+6285225551234',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INDIVIDUAL',
                                                                                                                              NULL, 'Perum Singocandi Indah Blok B-12, Kudus'),
 
-                                                                                                                            ('pondok.qudsiyyah', 'admin@qudsiyyah.id', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+                                                                                                                            ('pondok.qudsiyyah', 'admin@qudsiyyah.id', '$2a$10$GG1YgdOU9k4ufScdH1rM1ey5G5ZZHzYWZBGSQ5HSrkd8iiMvkLEre',
                                                                                                                              'Ustadz Mahfud (Bag. Sarpras)', '+6285226667890',
                                                                                                                              (SELECT id FROM roles WHERE code='CUSTOMER'), 'INSTITUTION',
                                                                                                                              'Pondok Pesantren Qudsiyyah', 'Jl. K.H.R. Asnawi No. 1, Damaran, Kec. Kota Kudus');
@@ -390,7 +390,7 @@ INSERT INTO progress_events (batch_id, workflow_step_id, event_type, performed_b
      (SELECT id FROM workflow_steps WHERE code='SEWING' AND workflow_id=1),
      'STEP_STARTED',
      (SELECT id FROM users WHERE username='op.sewing'),
-     '2026-05-28 08:00:00+07');
+     '2026-05-28 14:00:00+07');
 
 
 -- ============================================================
@@ -420,7 +420,7 @@ INSERT INTO progress_events (batch_id, workflow_step_id, event_type, performed_b
      (SELECT id FROM workflow_steps WHERE code='SABLON_BORDIR' AND workflow_id=1),
      'STEP_STARTED',
      (SELECT id FROM users WHERE username='op.sablon'),
-     '2026-05-29 09:00:00+07',
+     '2026-05-29 14:00:00+07',
      'Sablon logo dada dulu, lanjut sablon punggung besok');
 
 
@@ -448,7 +448,7 @@ INSERT INTO progress_events (batch_id, workflow_step_id, event_type, performed_b
      (SELECT id FROM workflow_steps WHERE code='CUTTING' AND workflow_id=1),
      'STEP_STARTED',
      (SELECT id FROM users WHERE username='op.cutting'),
-     '2026-05-29 13:00:00+07');
+     '2026-05-29 17:00:00+07');
 
 
 -- ============================================================
