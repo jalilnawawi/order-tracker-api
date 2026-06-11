@@ -54,16 +54,30 @@ public class SecurityConfig {
                     "/api-docs/**"
                 ).permitAll()
 
-                // Customer endpoints
+                // Customer endpoints — satu-satunya jalur untuk role CUSTOMER
                 .requestMatchers("/api/v1/me/orders/**").hasRole("CUSTOMER")
 
                 // Operator endpoints
                 .requestMatchers(HttpMethod.GET, "/api/v1/me/queue").hasAnyRole("OPERATOR", "ADMIN")
 
+                // Orders subtree — ADMIN only. Mencakup list, detail, create,
+                // update, delete, dan nested /orders/{id}/batches.
+                // CUSTOMER & OPERATOR -> 403 (customer hanya boleh lewat /me/*).
+                .requestMatchers("/api/v1/orders", "/api/v1/orders/**").hasRole("ADMIN")
+
+                // Batches subtree — OPERATOR butuh baca batch & progress-event,
+                // serta append progress-event untuk batch yang dikerjakannya.
+                .requestMatchers(HttpMethod.POST, "/api/v1/batches/*/progress-events")
+                    .hasAnyRole("OPERATOR", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/batches/**").hasAnyRole("OPERATOR", "ADMIN")
+                // Sisa /batches/** (PATCH batch, tulis barcode) -> ADMIN only.
+                .requestMatchers("/api/v1/batches/**").hasRole("ADMIN")
+
+                // Barcodes — domain operator/admin (scanner). Bukan jalur customer.
+                .requestMatchers(HttpMethod.GET, "/api/v1/barcodes/**").hasAnyRole("OPERATOR", "ADMIN")
+                .requestMatchers("/api/v1/barcodes/**").hasRole("ADMIN")
+
                 // Admin-only endpoints
-                .requestMatchers(HttpMethod.POST, "/api/v1/orders").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/orders/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/orders/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
 
                 // Semua endpoint lain butuh authentication
