@@ -1,0 +1,30 @@
+# Build output
+target/
+build/
+
+# Claude context (jangan ikut ke build context)
+claude_context/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.code-workspace
+
+# Env & secrets
+.env
+
+# Docs
+HELP.md
+README.md
+
+# Docker
+Dockerfile
+.dockerignore
