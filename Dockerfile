@@ -15,11 +15,11 @@ RUN mvn -B clean package -DskipTests
 # =====================================================================
 # Stage 2: Runtime
 # =====================================================================
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 
-# Jalan sebagai non-root user
-RUN groupadd --system spring && useradd --system --gid spring spring
+# Jalan sebagai non-root user (busybox: addgroup/adduser, bukan groupadd/useradd)
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 # Ambil jar hasil build, exclude *.jar.original
